@@ -1,0 +1,12 @@
+project:
+  name: "Minor Taxi QA Automation Framework"
+  env: "dev"
+
+api:
+  base_url: "http://85.239.63.24:8000"
+  api_prefix: "/api/v1"
+  timeout: 10
+
+reporting:
+  allure_dir: "allure-results"
+  html_report: "reports/report.html"
