@@ -1,0 +1,51 @@
+LOGIN_RESPONSE_SCHEMA = {
+    "type": "object",
+    "required": [
+        "access_token",
+        "refresh_token",
+        "token_type",
+        "role",
+        "user_id",
+        "expires_in",
+        "refresh_expires_in",
+    ],
+    "properties": {
+        "access_token": {"type": "string"},
+        "refresh_token": {"type": "string"},
+        "token_type": {"type": "string"},
+        "role": {"type": "string"},
+        "user_id": {"type": "integer"},
+        "preferred_language": {"type": ["string", "null"]},
+        "expires_in": {"type": "integer"},
+        "refresh_expires_in": {"type": "integer"},
+    },
+    "additionalProperties": True,
+}
+
+ME_RESPONSE_SCHEMA = {
+    "type": "object",
+    "required": [
+        "id",
+        "phone_number",
+        "full_name",
+        "role",
+        "status",
+        "preferred_language",
+        "created_at",
+        "total_trips",
+    ],
+    "properties": {
+        "id": {"type": "integer"},
+        "phone_number": {"type": "string"},
+        "email": {"type": ["string", "null"]},
+        "full_name": {"type": "string"},
+        "role": {"type": "string"},
+        "status": {"type": "string"},
+        "avatar_url": {"type": ["string", "null"]},
+        "preferred_language": {"type": ["string", "null"]},
+        "created_at": {"type": "string"},
+        "total_trips": {"type": "integer"},
+        "last_login": {"type": ["string", "null"]},
+    },
+    "additionalProperties": True,
+}
