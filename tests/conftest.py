@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from src.clients.base_client import BaseClient
 import pytest
 
 from src.clients.auth_client import AuthClient
@@ -67,3 +67,13 @@ def customer_access_token(customer_tokens: dict) -> str:
 @pytest.fixture(scope="session")
 def authenticated_customer_client(customer_access_token: str) -> AuthClient:
     return AuthClient(token=customer_access_token)
+
+
+@pytest.fixture(scope="session")
+def invalid_token_client() -> BaseClient:
+    return BaseClient(token="this.is.invalid.token")
+
+
+@pytest.fixture(scope="session")
+def anonymous_client() -> BaseClient:
+    return BaseClient()
