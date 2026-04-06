@@ -18,7 +18,6 @@ class BaseClient:
 
         self.default_headers = {
             "Accept": "application/json",
-            "Content-Type": "application/json",
         }
 
         if token:
@@ -28,6 +27,33 @@ class BaseClient:
         endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
         return f"{self.base_url}{self.api_prefix}{endpoint}"
 
+    def _log_request(self, method: str, url: str, **kwargs: Any) -> None:
+        self.logger.info("REQUEST %s %s", method.upper(), url)
+
+        headers = kwargs.get("headers")
+        params = kwargs.get("params")
+        json_body = kwargs.get("json")
+        data = kwargs.get("data")
+
+        if headers:
+            self.logger.info("Request headers: %s", headers)
+        if params:
+            self.logger.info("Request params: %s", params)
+        if json_body is not None:
+            self.logger.info("Request json: %s", json_body)
+        if data is not None:
+            self.logger.info("Request data: %s", data)
+
+    def _log_response(self, response: requests.Response) -> None:
+        self.logger.info("RESPONSE status=%s", response.status_code)
+
+        try:
+            body = response.json()
+        except Exception:
+            body = response.text
+
+        self.logger.info("Response body: %s", body)
+
     def _request(
         self,
         method: str,
@@ -36,20 +62,24 @@ class BaseClient:
     ) -> requests.Response:
         url = self._build_url(endpoint)
 
-        headers = kwargs.pop("headers", {})
-        merged_headers = {**self.default_headers, **headers}
+        custom_headers = kwargs.pop("headers", {})
+        merged_headers = {**self.default_headers, **custom_headers}
 
-        self.logger.info("%s %s", method.upper(), url)
+        request_kwargs = {
+            "headers": merged_headers,
+            "timeout": self.timeout,
+            **kwargs,
+        }
+
+        self._log_request(method, url, **request_kwargs)
 
         response = self.session.request(
             method=method.upper(),
             url=url,
-            headers=merged_headers,
-            timeout=self.timeout,
-            **kwargs,
+            **request_kwargs,
         )
 
-        self.logger.info("Response status: %s", response.status_code)
+        self._log_response(response)
         return response
 
     def get(self, endpoint: str, **kwargs: Any) -> requests.Response:

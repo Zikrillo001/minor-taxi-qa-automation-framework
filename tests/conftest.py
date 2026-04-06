@@ -3,8 +3,12 @@ from __future__ import annotations
 import pytest
 
 from src.clients.auth_client import AuthClient
-from src.utils.config_reader import get_customer_credentials
+from src.utils.config_reader import debug_env_info, get_customer_credentials
 from src.utils.assertions import assert_status_code
+
+
+def pytest_configure(config):
+    print("\n[DEBUG ENV INFO]", debug_env_info())
 
 
 @pytest.fixture(scope="session")
@@ -22,9 +26,26 @@ def auth_client() -> AuthClient:
 
 @pytest.fixture(scope="session")
 def customer_login_response(auth_client: AuthClient, customer_credentials: dict):
-    response = auth_client.login(customer_credentials)
-    assert_status_code(response.status_code, 200)
-    return response
+    phone = customer_credentials["phone_number"]
+    password = customer_credentials["password"]
+
+    login_attempts = [
+        ("phone_number", auth_client.login_with_phone(phone, password)),
+        ("phone", auth_client.login_with_phone_alt(phone, password)),
+        ("username", auth_client.login_with_username(phone, password)),
+        ("email", auth_client.login_with_email(phone, password)),
+    ]
+
+    for strategy_name, response in login_attempts:
+        if response.status_code == 200:
+            print(f"\n[LOGIN SUCCESS STRATEGY] {strategy_name}")
+            return response
+
+    debug_results = [
+        (strategy, resp.status_code, resp.text[:500])
+        for strategy, resp in login_attempts
+    ]
+    pytest.fail(f"All login strategies failed: {debug_results}")
 
 
 @pytest.fixture(scope="session")

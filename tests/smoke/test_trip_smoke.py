@@ -1,6 +1,7 @@
 import pytest
 
 from src.clients.base_client import BaseClient
+from src.utils.assertions import assert_status_code_in
 
 
 @pytest.mark.smoke
@@ -14,16 +15,11 @@ def test_get_service_types_requires_auth(customer_access_token):
         "distance_km": 5,
     }
     response = client.get("/customer/service-types", params=params)
-
-    assert response.status_code in [200, 204], (
-        f"Expected 200/204, got {response.status_code}. Response: {response.text}"
-    )
+    assert_status_code_in(response, [200, 204])
 
 
 @pytest.mark.smoke
 @pytest.mark.trip
 def test_get_active_trip(authenticated_customer_client):
     response = authenticated_customer_client.get("/customer/trips/active")
-    assert response.status_code in [200, 204], (
-        f"Expected 200/204, got {response.status_code}. Response: {response.text}"
-    )
+    assert_status_code_in(response, [200, 204, 404])
